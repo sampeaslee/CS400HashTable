@@ -1,48 +1,43 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 
+// TODO: comment and complete your HashTableADT implementation
+//
+// TODO: implement all required methods
+// DO ADD REQUIRED PUBLIC METHODS TO IMPLEMENT interfaces
+//
+// DO NOT ADD ADDITIONAL PUBLIC MEMBERS TO YOUR CLASS
+// (no public or package methods that are not in implemented interfaces)
+//
+// TODO: describe the collision resolution scheme you have chosen
+// identify your scheme as open addressing or bucket
+//
+// if open addressing: describe probe sequence
+// if buckets: describe data structure for each bucket
+//
+// TODO: explain your hashing algorithm here
+// NOTE: you are not required to design your own algorithm for hashing,
+// since you do not know the type for K,
+// you must use the hashCode provided by the <K key> object
+
+/**
+ * HashTable implementation that uses:
+ * 
+ * @param <K> unique comparable identifier for each <K,V> pair, may not be null
+ * @param <V> associated value with a key, value may be null
+ */
 public class BookHashTable implements HashTableADT<String, Book> {
 
-
-    // TODO: comment and complete your HashTableADT implementation
-    //
-    // TODO: implement all required methods
-    // DO ADD REQUIRED PUBLIC METHODS TO IMPLEMENT interfaces
-    //
-    // DO NOT ADD ADDITIONAL PUBLIC MEMBERS TO YOUR CLASS
-    // (no public or package methods that are not in implemented interfaces)
-    //
-    // TODO: describe the collision resolution scheme you have chosen
-    // identify your scheme as open addressing or bucket
-    //
-    // if open addressing: describe probe sequence
-    // if buckets: describe data structure for each bucket
-    //
-    // TODO: explain your hashing algorithm here
-    // NOTE: you are not required to design your own algorithm for hashing,
-    // since you do not know the type for K,
-    // you must use the hashCode provided by the <K key> object
-
-    /** HashTable implementation that uses:
-     * @param <K> unique comparable identifier for each <K,V> pair, may not be null
-     * @param <V> associated value with a key, value may be null
-     */
-
-
-    /** The initial capacity that is used if none is specified user */
+    /** The initial capacity that is used if none is specifed user */
     static final int DEFAULT_CAPACITY = 101;
 
     /** The load factor that is used if none is specified by user */
     static final double DEFAULT_LOAD_FACTOR_THRESHOLD = 0.75;
 
-    private ArrayList<LinkedList<Book>> hashTable;
+    private LinkedList<Book>[] hashTable;
     private double loadFactorThreshold;
     private int numKeys;
     private int capacity;
-
-    // Inner class to store key value pairs
-
 
     /**
      * REQUIRED default no-arg constructor
@@ -59,24 +54,18 @@ public class BookHashTable implements HashTableADT<String, Book> {
      * @param initialCapacity number of elements table should hold at start.
      * @param loadFactorThreshold the ratio of items/capacity that causes table to resize and rehash
      */
+    @SuppressWarnings("unchecked")
     public BookHashTable(int initialCapacity, double loadFactorThreshold) {
+        // TODO: comment and complete a constructor that accepts initial capacity
+        // and load factor threshold and initializes all fields
         this.capacity = initialCapacity;
-        hashTable = new ArrayList<LinkedList<Book>>(initialCapacity);
-        // Need to initialize the ArrayList elements to null, so you can add to a
-        // specific index when the hash function hashes to it
-        for (int i = 0; i < initialCapacity; i++) {
-            hashTable.add(null);
-        }
+        hashTable = new LinkedList[initialCapacity];
         this.loadFactorThreshold = loadFactorThreshold;
     }
 
     // Add the key,value pair to the data structure and increase the number of keys.
     // If key is null, throw IllegalNullKeyException;
     // If key is already in data structure, throw DuplicateKeyException();
-    /**
-     * @param key used to store value in hashtable 
-     * @param value- value to add to hash table
-     */
     @Override
     public void insert(String key, Book value)
         throws IllegalNullKeyException, DuplicateKeyException {
@@ -84,38 +73,37 @@ public class BookHashTable implements HashTableADT<String, Book> {
             throw new IllegalNullKeyException();
         }
         LinkedList<Book> bucket;// Create LinkedList reference
-
+        Book book = value;
         int hashCode = key.hashCode() & 0x7FFFFFFF;// Calculate hashcode for key
         int hashIndex = hashCode % capacity;// Get hash index by modding hashcode with hashTable
-                                            // capacity
-        if (hashTable.get(hashIndex) == null) {
+                                            // size
+        if (hashTable[hashIndex] == null) {
             // LinkedList at the hashIndex is not initialized need to create a new empty linked list
             bucket = new LinkedList<>();
         } else {
             // LinkedList at hashIndex is already initialized
-            bucket = hashTable.get(hashIndex);
+            bucket = hashTable[hashIndex];
         }
         if (numKeys == 0) {
-            // There are no keys stored in the hash table, so just add the key to it
-            bucket.add(value);
-            hashTable.set(hashIndex, bucket);
+            // There are no keys stored in the hashtable, so just add the key to it
+            bucket.add(book);
+            hashTable[hashIndex] = bucket;
             numKeys++;
         } else {
             try {
-                // Using get to search through hash table to see if the key is already stored or not
+                // Using get to search through hashtable to see if the key is already stored or not
                 get(key);
-                // If get does not throw a KeyNotFoundException, key is already in the hash table
+                // If get does not throw a KeyNotFoundException, key is already in the hashtable
                 throw new DuplicateKeyException();
 
             } catch (KeyNotFoundException e) {
                 // KeyNotFoundException thrown by get method, key can be added to the hashTable
-                bucket.add(value);
-                hashTable.set(hashIndex, bucket);
+                bucket.add(book);
+                hashTable[hashIndex] = bucket;
                 numKeys++;
                 if ((double) numKeys / capacity >= loadFactorThreshold) {
-                    System.out.println("RESIZE");
                     // Get all key values pairs stored in hash table
-                    ArrayList<Book> books= this.getAllKeyValues();
+                    ArrayList<Book> books = this.getAllKeyValues();
                     // Increase the hash table capacity and reinsert keyValues
                     reHash(books);
                 }
@@ -130,8 +118,8 @@ public class BookHashTable implements HashTableADT<String, Book> {
      */
     private ArrayList<Book> getAllKeyValues() {
         ArrayList<Book> books = new ArrayList<Book>();
-        for (int i = 0; i < hashTable.size(); i++) {
-            LinkedList<Book> bucket = hashTable.get(i);
+        for (int i = 0; i < hashTable.length; i++) {
+            LinkedList<Book> bucket = hashTable[i];
             if (bucket == null) {
                 continue;
             } else {
@@ -146,22 +134,19 @@ public class BookHashTable implements HashTableADT<String, Book> {
     /**
      * This method is used to update the hash table when the load factor => load factor threshold
      * It uses an ArrayList of all key value pairs currently stored in the hash table 
-     * and reinserts them into a new hash table with a larger capacity(size)
+     * and reinserts them into a new hash table with a larger capacity = capacity*2 + 1.
      * @param keyValues- ArrayList of key values currently stored in hashTable 
      * @throws IllegalNullKeyException
      * @throws DuplicateKeyException
      */
+    @SuppressWarnings("unchecked")
     private void reHash(ArrayList<Book> books)
         throws IllegalNullKeyException, DuplicateKeyException {
         this.capacity = capacity * 2 + 1;
-        this.hashTable = new ArrayList<LinkedList<Book>>(capacity);
+        this.hashTable = new LinkedList[capacity];
         this.numKeys = 0;
-        // Initialize the ArrayList hashTable so new
-        for (int i = 0; i < capacity; i++) {
-            hashTable.add(null);
-        }
         for (int j = 0; j < books.size(); j++) {
-            insert(books.get(j).getKey(),books.get(j));
+            insert(books.get(j).getKey(), books.get(j));
         }
     }
 
@@ -177,15 +162,14 @@ public class BookHashTable implements HashTableADT<String, Book> {
             throw new IllegalNullKeyException();
         }
         LinkedList<Book> bucket;// Create LinkedList Reference
-        Book book;
+        Book book;// Create KeyValue reference
         int hashCode = key.hashCode() & 0x7FFFFFFF;// Calculate hashcode for key
-        int hashIndex = hashCode % capacity;
-
-        if (hashTable.get(hashIndex) == null) {
+        int hashIndex = hashCode % hashTable.length;
+        if (hashTable[hashIndex] == null) {
             // Nothing stored at that index in the hashtable yet
             return false;
         } else {
-            bucket = hashTable.get(hashIndex);
+            bucket = hashTable[hashIndex];
             if (bucket.size() == 0) {
                 // LinkedList is empty no keys stored
                 return false;
@@ -217,20 +201,20 @@ public class BookHashTable implements HashTableADT<String, Book> {
         }
 
         LinkedList<Book> bucket;// Create LinkedList Reference
-        Book book;// Create KeyValue reference
         int hashCode = key.hashCode() & 0x7FFFFFFF;// Calculate hashcode for key
-        int hashIndex = hashCode % capacity;;
-        if (hashTable.get(hashIndex) == null) {
-            // Nothing stored at that index in the hash table yet
+        int hashIndex = hashCode % capacity;
+        if (hashTable[hashIndex] == null) {
+            // Nothing stored at that index in the hashtable yet
             throw new KeyNotFoundException();
         } else {
-            bucket = hashTable.get(hashIndex);
+            bucket = hashTable[hashIndex];
             if (bucket.size() == 0) {
                 // LinkedList is empty no keys stored
                 throw new KeyNotFoundException();
             }
         }
         // LinkedList is not empty, iterate through the list to try and find key
+        Book book;
         for (int i = 0; i < bucket.size(); i++) {
             book = bucket.get(i);
             if (key.equals(book.getKey())) {
@@ -241,6 +225,7 @@ public class BookHashTable implements HashTableADT<String, Book> {
         // After iterating through list key was not found
         throw new KeyNotFoundException();
     }
+
 
     /*
      * Returns the number of key value pairs stored in the hash table
@@ -275,28 +260,29 @@ public class BookHashTable implements HashTableADT<String, Book> {
         return 5;
     }
 
+
     public static void main(String[] args) {
         try {
             ArrayList<Book> bookTable = BookParser.parse("books.csv");
-            BookHashTable hashTable = new BookHashTable(5, .7);
+            System.out.println("From CSV:" + bookTable.get(0).toString());
+            System.out.println("From CSV:" + bookTable.get(1).toString());
+            BookHashTable hashTable = new BookHashTable(11, .7);
             hashTable.insert(bookTable.get(0).getKey(), bookTable.get(0));
             hashTable.insert(bookTable.get(1).getKey(), bookTable.get(1));
             hashTable.insert(bookTable.get(2).getKey(), bookTable.get(2));
-            hashTable.insert(bookTable.get(3).getKey(), bookTable.get(3));
-            System.out.println(
-                "Capacity: " + hashTable.getCapacity() + "NumKeys: " + hashTable.numKeys());
+            System.out.println(bookTable.get(1).getKey());
+            System.out.println(bookTable.get(2).getKey());
+            System.out.println(bookTable.get(3).getKey());
 
-            // System.out.println(hashTable.get(bookTable.get(0).getKey()));
+            ArrayList<Integer> sam = new ArrayList<>(10);
 
-            ArrayList<Book> test = hashTable.getAllKeyValues();
-            for (int i = 0; i < test.size(); i++) {
-                System.out.println(test.get(i));
+            for (int i = 0; i < 10; i++) {
+                sam.add(null);
             }
-
+            sam.set(9, 10);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 
 }
