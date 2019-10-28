@@ -5,9 +5,8 @@
  * 
  * Semester:   Fall 2019
  * Course:     CS400
- * 
- * Due Date:   before 12pm on 10/24
- * Version:    1.0     
+ * Description: Junit tests to check functionality of
+ * BookHashTable implementation
  */
 
 import org.junit.After;
@@ -43,7 +42,7 @@ public class BookHashTableTest {
     static final int INIT_CAPACITY = 2;
     static final double LOAD_FACTOR_THRESHOLD = 0.49;
        
-    static Random RNG = new Random(0);  // seeded to make results repeatable (deterministic)
+    static Random RNG = new Random(0);//seeded to make results repeatable
 
     /** Create a large array of keys and matching values for use in any test */
     @BeforeAll
@@ -54,7 +53,6 @@ public class BookHashTableTest {
     /** Initialize empty hash table to be used in each test */
     @BeforeEach
     public void setUp() throws Exception {
-        // TODO: change HashTable for final solution
          bookObject = new BookHashTable(INIT_CAPACITY,LOAD_FACTOR_THRESHOLD);
     }
 
@@ -63,13 +61,27 @@ public class BookHashTableTest {
     public void tearDown() throws Exception {
         bookObject = null;
     }
-
+    /**
+     * Inserts a specified amount of key values pairs into a 
+     * BookHashtable object from an ArrayList of books
+     * @param bookTable
+     * @param j
+     * @throws IllegalNullKeyException
+     * @throws DuplicateKeyException
+     */
     private void insertMany(ArrayList<Book> bookTable, int j) 
         throws IllegalNullKeyException, DuplicateKeyException {
         for (int i = 0; i < j; i++ ) {
             bookObject.insert(bookTable.get(i).getKey(), bookTable.get(i));
         }
     }
+    /**
+     * Removes a specified amount of key values pairs from a 
+     * BookHashtable object from an ArrayList of books
+     * @param bookTable
+     * @param j
+     * @throws IllegalNullKeyException
+     */
     private void removeMany(ArrayList<Book> bookTable, int j) 
         throws IllegalNullKeyException {
         for (int i = 0; i < j; i++ ) {
@@ -106,7 +118,8 @@ public class BookHashTableTest {
      * @throws IllegalNullKeyException 
      */
     @Test
-    public void test001_IsNotEmpty() throws IllegalNullKeyException, DuplicateKeyException {
+    public void test001_IsNotEmpty() throws IllegalNullKeyException,
+    DuplicateKeyException {
     	bookObject.insert(bookTable.get(0).getKey(),bookTable.get(0));
         String expected = ""+1;
         //"size with one entry:"
@@ -119,21 +132,23 @@ public class BookHashTableTest {
     */
     
     @Test 
-    public void test002_Resize() throws IllegalNullKeyException, DuplicateKeyException {
+    public void test002_Resize() throws IllegalNullKeyException, 
+    DuplicateKeyException {
     	bookObject.insert(bookTable.get(0).getKey(),bookTable.get(0));
     	int cap1 = bookObject.getCapacity(); 
     	bookObject.insert(bookTable.get(1).getKey(),bookTable.get(1));
-    	int cap2 = bookObject.getCapacity(); 	
+    	int cap2 = bookObject.getCapacity(); 
         //"size with one entry:"
         assertTrue(cap2 > cap1 & cap1 ==2);
     }
     
     /**
-     * Test to make sure that insert rehashes(re inserts) the key value pairs when a resizing happens
-     * 
+     * Test to make sure that insert rehashes(re inserts) the key value
+     * pairs when a resizing happens
      */
     @Test
-    public void test00_Resize_check_keys_were_reinserted() throws DuplicateKeyException, IllegalNullKeyException,
+    public void test003_Resize_check_keys_were_reinserted()
+        throws DuplicateKeyException, IllegalNullKeyException,
     KeyNotFoundException {
         bookObject = new BookHashTable(20,.8);
         insertMany(bookTable,17);
@@ -141,26 +156,29 @@ public class BookHashTableTest {
             fail();
         }
         for(int i = 0; i < bookObject.numKeys(); i++) {
-            if(!bookObject.get(bookTable.get(i).getKey()).equals(bookTable.get(i))) {
+            if(!bookObject.get(bookTable.get(i).getKey()).
+                equals(bookTable.get(i))) {
                 fail();
             }
         }
     }
     /**
-     * Test to make sure that insert rehashes(re inserts) the key value pairs when multiple resizing happens
-     * Also test that capacity was updated correctly capacity after a resizing is capacity*2 + 1
-     * 
+     * Test to make sure that insert rehashes(re inserts) the key value pairs
+     *  when multiple resizing happens. Also test that capacity was updated 
+     *  correctly capacity after a resizing is capacity*2 + 1 
      */
     @Test
-    public void test00_Multiple_resizes_check_keys_were_reinserted() throws DuplicateKeyException, IllegalNullKeyException,
-    KeyNotFoundException {
+    public void test004_Multiple_resizes_check_keys_were_reinserted()
+        throws DuplicateKeyException, IllegalNullKeyException,
+        KeyNotFoundException {
         bookObject = new BookHashTable(200,.8);
         insertMany(bookTable,350);    
         if(bookObject.getCapacity() !=803) {
             fail();
         }
         for(int i = 0; i < bookObject.numKeys(); i++) {
-            if(!bookObject.get(bookTable.get(i).getKey()).equals(bookTable.get(i))) {
+            if(!bookObject.get(bookTable.get(i).getKey()).
+                equals(bookTable.get(i))) {
                 fail();
             }
         }
@@ -169,7 +187,7 @@ public class BookHashTableTest {
      * Test that insert method throws the proper exceptions 
      */
     @Test 
-    public void test00_insert_throws_correct_exceptions() {
+    public void test005_insert_throws_correct_exceptions() {
         try {
             bookObject.insert(null, bookTable.get(0));
             fail("IllegalNullKeyException NOT THROWN!!!");  
@@ -194,9 +212,9 @@ public class BookHashTableTest {
      */
     
     @Test 
-    public void test00_get_throws_correct_exceptions() throws DuplicateKeyException {
+    public void test006_get_throws_correct_exceptions()
+        throws DuplicateKeyException {
         try {
-            bookObject = new BookHashTable(101,.8);
             bookObject.insert(bookTable.get(0).getKey(),bookTable.get(0));
             bookObject.insert(bookTable.get(1).getKey(),bookTable.get(1));
             bookObject.insert(bookTable.get(2).getKey(),bookTable.get(2));
@@ -221,7 +239,7 @@ public class BookHashTableTest {
      * Test that remove throws exception when null key entered as argument 
      */
     @Test
-    public void test00_remove_throws_IllegalNullKeyException() {
+    public void test007_remove_throws_IllegalNullKeyException() {
         try {
            bookObject.remove(null);
            fail("Exception not thrown");
@@ -235,37 +253,64 @@ public class BookHashTableTest {
      */
     
     @Test
-    public void test00_remove_returns_correct_boolean() throws Exception{
+    public void test008_remove_returns_correct_boolean() 
+       throws  IllegalNullKeyException, DuplicateKeyException{
        insertMany(bookTable, 20);
        if(!bookObject.remove(bookTable.get(15).getKey())) {
            fail();
        }
-       if(bookObject.remove(bookTable.get(100).getKey())) {
+       if(bookObject.remove(bookTable.get(15).getKey())) {
+           fail();
+       }
+       if(bookObject.remove(bookTable.get(115).getKey())) {
            fail();
        }
     }
     
     /*
-     * Insert 1000 keys values and then test that get returns all 1000 values correctly 
+     * Insert 1000 keys values and then test that get returns
+     *  all 1000 values correctly 
      */
     @Test
-    public void test00_insert_1000_keys_get_1000_values() throws DuplicateKeyException, IllegalNullKeyException, 
-    KeyNotFoundException {
+    public void test009_insert_1000_keys_get_1000_values() 
+        throws DuplicateKeyException, IllegalNullKeyException, 
+        KeyNotFoundException {
         bookObject = new BookHashTable(101,.8);
         insertMany(bookTable, 1000);
         for(int i = 0; i < bookObject.numKeys(); i ++) {
-            if(!bookObject.get(bookTable.get(i).getKey()).equals(bookTable.get(i))){
+            if(!bookObject.get(bookTable.get(i).getKey()).
+                equals(bookTable.get(i))){
                 fail();
             }
         }
     }
-
+    /**
+     * Insert the same value with two different key 
+     */
+    @Test
+    public void test010_different_keys_same_value()
+        throws DuplicateKeyException,
+        IllegalNullKeyException, KeyNotFoundException {
+        bookObject.insert(bookTable.get(0).getKey(), bookTable.get(0));
+        bookObject.insert(bookTable.get(1).getKey(), bookTable.get(0));
+        if(!bookObject.get(bookTable.get(0).getKey()).
+            equals(bookTable.get(0))){
+            fail();
+        }
+        if(!bookObject.get(bookTable.get(1).getKey()).
+            equals(bookTable.get(0))){
+            fail();
+        }
+  
+    }
+    
     /*
      * Test that remove correctly removes the key value pair 
      * Insert key, get key, remove key. 
      * Then try to get key again and check if KeyNotFoundException was thrown 
      */
-    @Test void test00_insert_key_get_value_delete_key_get_value() throws DuplicateKeyException, IllegalNullKeyException{
+    @Test void test011_insert_key_get_value_delete_key_get_value()
+    throws DuplicateKeyException, IllegalNullKeyException{
        try {
         bookObject.insert(bookTable.get(0).getKey(), bookTable.get(0));
         bookObject.get(bookTable.get(0).getKey());  
@@ -284,10 +329,11 @@ public class BookHashTableTest {
     /*
      * Insert 20 key value pairs 
      * Check that get returns all 20 values 
-     * Then delete all twenty keys 
-     * Check that get throws a KeyNotFoundException for all 20 removed keys 
+     * Then delete all 20 keys 
+     * Check that get throws a KeyNotFoundException for all 20 keys
      */
-    @Test void test00_insert_20_keys_remove_20_keys() throws DuplicateKeyException, IllegalNullKeyException{
+    @Test void test012_insert_20_keys_remove_20_keys() 
+        throws DuplicateKeyException, IllegalNullKeyException{
        try {
         bookObject = new BookHashTable(101,1.0);
         insertMany(bookTable, 20);
@@ -302,17 +348,43 @@ public class BookHashTableTest {
             bookObject.remove(bookTable.get(i).getKey());
         try {    
             bookObject.get(bookTable.get(i).getKey()); 
-            fail("KeyNotFoundExceptions should have been thrown, remove not working correctly");
+            fail("KeyNotFoundExceptions should have been thrown, "
+                + "remove not working correctly");
             }catch(KeyNotFoundException e) {
             }
         }      
     }
+    /*
+     * Insert 20 key value pairs 
+     * Then delete all twenty keys 
+     * Then insert the same 20 keys and check if there
+     * are stored in the hash table
+     */
+    @Test void test013_insert_20_keys_remove_20_keys_insert_20_again()
+        throws DuplicateKeyException, IllegalNullKeyException{
+       try {
+        bookObject = new BookHashTable(101,1.0);
+        insertMany(bookTable, 20);  
+        removeMany(bookTable,20);
+        insertMany(bookTable, 20);
+        for(int i = 0; i < bookObject.numKeys(); i ++) {
+            bookObject.get(bookTable.get(i).getKey());      
+         }
+       }catch(KeyNotFoundException e) {
+           fail("Keys should have been found");
+        }
+     
+        
+    }
+
 
     /*
-     * Test that numKeys returns the right amount of keys after multiple inserts and removes
+     * Test that numKeys returns the right amount of keys after multiple 
+     * inserts and removes
      */
     @Test
-    public void test00_check_numKeys_after_mutiple_inserts_and_deletes() throws Exception{
+    public void test014_check_numKeys_after_mutiple_inserts_and_deletes()
+    throws Exception{
         insertMany(bookTable,50);
         if(bookObject.numKeys() != 50) {    
             fail();
@@ -326,12 +398,47 @@ public class BookHashTableTest {
            fail();
        }        
     }
+    /**
+     * Check behavior of get on empty hash table
+     * KeyNotFoundException should be thrown
+     */
     
+    @Test
+    public void test015_get_empty_hash_table_functionality() {
+        try {
+            bookObject.get(bookTable.get(0).getKey());
+            fail("KeyNotFoundException not thrown");
+        }catch( KeyNotFoundException e){            
+        }catch(IllegalNullKeyException e) {
+            fail();
+        }
+    }
+    /**
+     * Insert 50 keys, then call get on all 50 keys twice in a row
+     * to make sure the keys are still in the hash table
+     */
+    @Test
+    public void test016_get_does_not_remove_key()
+        throws IllegalNullKeyException, DuplicateKeyException{
+        try {
+            insertMany(bookTable, 50);
+            for(int i = 0; i < bookObject.numKeys(); i ++) {
+                bookObject.get(bookTable.get(i).getKey());      
+             }      
+            for(int i = 0; i < bookObject.numKeys(); i ++) {
+                 bookObject.get(bookTable.get(i).getKey());      
+             }  
+        }catch( KeyNotFoundException e){   
+            fail();
+        }catch(IllegalNullKeyException e) {
+            fail();
+        }
+    }
     /*
      * Test that getLoadFactorThreshold returns correct value
      */
     @Test
-    public void test00_loadThreshold_initialized_correctly() {
+    public void test017_loadThreshold_initialized_correctly() {
         if(bookObject.getLoadFactorThreshold() != .49) {
             fail();
         }
@@ -344,7 +451,7 @@ public class BookHashTableTest {
      * Test that getCapacity returns correct value
      */
     @Test
-    public void test00_capacity_initialized_correctly() {
+    public void test018_capacity_initialized_correctly() {
         if(bookObject.getCapacity() != 2) {
             fail();
         }
